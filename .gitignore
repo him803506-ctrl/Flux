@@ -57,3 +57,6 @@ desktop.ini
 # Python 字节码
 __pycache__/
 *.pyc
+
+# Release 暂存区（资产挂在 GitHub Release 上，不进仓库）
+_stage/

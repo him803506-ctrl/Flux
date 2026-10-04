@@ -14,6 +14,49 @@
 
 ---
 
+## ⬇️ 下载
+
+**最新版本：[v1.0.0](https://github.com/him803506-ctrl/Flux/releases/latest)**
+
+| 文件 | 大小 | 说明 |
+|---|---|---|
+| **[`Flux_Setup-1.0.0.exe`](https://github.com/him803506-ctrl/Flux/releases/download/v1.0.0/Flux_Setup-1.0.0.exe)** | 42.9 MB | **推荐**。安装版，自动导入证书、注册一级右键菜单、创建桌面快捷方式 |
+| [`Flux-1.0.0-portable.zip`](https://github.com/him803506-ctrl/Flux/releases/download/v1.0.0/Flux-1.0.0-portable.zip) | 54.4 MB | 绿色版，解压即用；右键菜单需管理员执行 `Flux.exe --register-shell` |
+| [`SHA256SUMS.txt`](https://github.com/him803506-ctrl/Flux/releases/download/v1.0.0/SHA256SUMS.txt) | — | 校验和 |
+
+> ⚠️ **运行前必须先装 [7-Zip](https://www.7-zip.org/)（≥ 21.07）** —— 它是解压引擎。
+> .NET 运行时**无需另装**，已内置。
+
+<details>
+<summary>安装步骤</summary>
+
+1. 下载 `Flux_Setup-1.0.0.exe`，双击安装（需要管理员权限）
+2. 桌面上会出现名为 **Flux** 的快捷方式
+3. 完事 —— 安装程序已自动完成：
+   - 把自签证书导入「受信任的人」（`LocalMachine\TrustedPeople`）
+   - 注册稀疏包，使「使用 Flux 解压」出现在**一级右键菜单**
+   - 创建桌面与开始菜单快捷方式
+
+**装完右键菜单没出现？** 在任务管理器里重启「Windows 资源管理器」，
+或注销后重新登录 —— shell 会缓存扩展注册表。
+
+</details>
+
+<details>
+<summary>绿色版步骤</summary>
+
+1. 解压到任意目录
+2. 右键菜单需**手动注册**：以管理员身份打开 PowerShell
+   ```powershell
+   cd <解压目录>
+   .\Flux.exe --register-shell
+   ```
+3. 卸载菜单：同样管理员执行 `.\Flux.exe --unregister-shell`
+
+</details>
+
+---
+
 ## 这是什么
 
 把压缩包拖进来就解压。**不认扩展名，只认文件头** ——
