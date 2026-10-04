@@ -1,0 +1,183 @@
+<Window x:Class="SmartUnzip.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Flux" Height="720" Width="880"
+        MinHeight="560" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgPrimary}"
+        AllowDrop="True" Drop="Window_Drop" DragEnter="Window_DragEnter">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ========== 顶部标题栏 ========== -->
+        <Grid Grid.Row="0" Margin="28,20,28,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Flux" Style="{StaticResource TitleText}" />
+                <TextBlock Text="" Style="{StaticResource SubText}"
+                           Margin="10,6,0,0" VerticalAlignment="Bottom" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button x:Name="BtnVault" Content="密码库" Style="{StaticResource SecondaryButton}"
+                        Margin="0,0,8,0" Click="BtnVault_Click" />
+                <Button x:Name="BtnSettings" Content="设置" Style="{StaticResource SecondaryButton}"
+                        Click="BtnSettings_Click" />
+            </StackPanel>
+        </Grid>
+
+        <!-- ========== 主体 ========== -->
+        <Grid Grid.Row="1" Margin="28,0,28,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- 拖拽区 -->
+            <Border x:Name="DropZone" Grid.Row="0"
+                    Background="{StaticResource BgCard}"
+                    BorderBrush="{StaticResource DropZoneBorder}"
+                    BorderThickness="1.5" CornerRadius="12"
+                    MinHeight="200" Margin="0,0,0,16"
+                    MouseLeftButtonUp="DropZone_Click">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+                                <Setter Property="Background" Value="#F7FBFF" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="&#x1F4E6;" FontSize="44" HorizontalAlignment="Center"
+                               Foreground="{StaticResource TextSecondary}" />
+                    <TextBlock Text="将文件拖到这里" FontSize="17" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" Margin="0,12,0,6"
+                               Foreground="{StaticResource TextPrimary}" />
+                    <TextBlock Text="自动识别真实格式并解压" Style="{StaticResource SubText}"
+                               HorizontalAlignment="Center" />
+                    <Button x:Name="BtnChoose" Content="选择文件" Style="{StaticResource PrimaryButton}"
+                            HorizontalAlignment="Center" Margin="0,16,0,0" Click="BtnChoose_Click" />
+                </StackPanel>
+            </Border>
+
+            <!-- 任务列表 -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="2,0,2,8">
+                    <TextBlock x:Name="TaskListTitle" Text="任务列表" Style="{StaticResource SubText}"
+                               VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="BtnExtractAll" Content="全部解压" Style="{StaticResource LinkButton}"
+                                Click="BtnExtractAll_Click" />
+                        <Button x:Name="BtnClear" Content="清空" Style="{StaticResource LinkButton}"
+                                Margin="10,0,0,0" Click="BtnClear_Click" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- 空状态 -->
+                <TextBlock x:Name="EmptyHint" Grid.Row="1"
+                           Text="还没有任务。拖入文件后，这里会显示检测结果。"
+                           Style="{StaticResource MutedText}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <!-- 任务卡片列表 -->
+                <ScrollViewer x:Name="TaskScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              Visibility="Collapsed">
+                    <ItemsControl x:Name="TaskList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource BgCard}"
+                                        BorderBrush="{StaticResource BorderSubtle}"
+                                        BorderThickness="1" CornerRadius="10"
+                                        Padding="16,14" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <Grid Grid.Row="0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Icon, Mode=OneWay}" FontSize="17" Margin="0,0,8,0"
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding FileName, Mode=OneWay}" FontWeight="SemiBold"
+                                                           FontSize="14" VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding StateText, Mode=OneWay}" HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{Binding StateColor, Mode=OneWay}" FontSize="12"
+                                                       FontWeight="SemiBold" />
+                                        </Grid>
+
+                                        <StackPanel Grid.Row="1" Margin="0,8,0,0">
+                                            <TextBlock Style="{StaticResource SubText}">
+                                                <Run Text="扩展名：" Foreground="#8A8A8A" />
+                                                <Run Text="{Binding ExtensionDisplay, Mode=OneWay}" />
+                                                <Run Text="    实际格式：" Foreground="#8A8A8A" />
+                                                <Run Text="{Binding ActualTypeDisplay, Mode=OneWay}" />
+                                                <Run Text="    大小：" Foreground="#8A8A8A" />
+                                                <Run Text="{Binding SizeDisplay, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding DetailText, Mode=OneWay}" Style="{StaticResource SubText}"
+                                                       Margin="0,4,0,0" TextWrapping="Wrap"
+                                                       Visibility="{Binding DetailVisibility, Mode=OneWay}" />
+                                        </StackPanel>
+
+                                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                                            <ProgressBar Style="{StaticResource FluentProgress}"
+                                                         Value="{Binding Progress, Mode=OneWay}" Maximum="100"
+                                                         Visibility="{Binding ProgressVisibility, Mode=OneWay}"
+                                                         VerticalAlignment="Center" Margin="0,0,140,0" />
+                                            <TextBlock Text="{Binding ProgressText, Mode=OneWay}" Style="{StaticResource MutedText}"
+                                                       HorizontalAlignment="Left" Margin="0,12,0,0"
+                                                       Visibility="{Binding ProgressVisibility, Mode=OneWay}" />
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <Button Content="打开文件夹" Style="{StaticResource SecondaryButton}"
+                                                        Padding="12,6" FontSize="12"
+                                                        Click="OpenFolder_Click"
+                                                        Tag="{Binding OutputDirectory, Mode=OneWay}"
+                                                        Visibility="{Binding OpenFolderVisibility, Mode=OneWay}" />
+                                                <Button Content="取消" Style="{StaticResource SecondaryButton}"
+                                                        Padding="12,6" FontSize="12" Margin="8,0,0,0"
+                                                        Click="CancelTask_Click" Tag="{Binding}"
+                                                        Visibility="{Binding CancelVisibility, Mode=OneWay}" />
+                                                <Button Content="一键解压" Style="{StaticResource PrimaryButton}"
+                                                        Padding="14,6" FontSize="12" Margin="8,0,0,0"
+                                                        Click="ExtractOne_Click" Tag="{Binding}"
+                                                        Visibility="{Binding ExtractVisibility, Mode=OneWay}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+        <!-- ========== 底部状态栏 ========== -->
+        <Grid Grid.Row="2" Margin="28,12,28,18">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="EngineDot" Width="8" Height="8" Fill="{StaticResource Success}"
+                         VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock x:Name="EngineStatus" Style="{StaticResource MutedText}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock x:Name="GlobalStatus" Style="{StaticResource MutedText}"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- AssemblyName = 最终 exe 名。改这里会连带影响：
+         Flux.iss 的 MyAppExeName、ShellRegistrar 的 ShellDllName/Executable、
+         AppxManifest 的 Application/@Executable。改名前先全局搜一遍。 -->
+    <AssemblyName>Flux</AssemblyName>
+    <!-- RootNamespace 保持 SmartUnzip 不动：它只影响 C# 命名空间（用户不可见），
+         改了要动几十个文件的 namespace，收益为零。 -->
+    <RootNamespace>SmartUnzip</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>Flux</Product>
+    <AssemblyTitle>Flux</AssemblyTitle>
+    <Company>Flux</Company>
+    <Copyright>Copyright (c) 2026</Copyright>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Flux.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\**" />
+    <Resource Include="Assets\**" />
+  </ItemGroup>
+
+</Project>

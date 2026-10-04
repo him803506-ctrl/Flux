@@ -1,0 +1,55 @@
+# ============================================================
+#  Flux —— .gitignore
+#  最要紧的一条：证书私钥（*.pfx）绝不能进版本库。
+#  它能伪造 .msix 签名，一旦泄露等于把签名权交出去。
+# ============================================================
+
+# ---- 编译产物 ----
+bin/
+obj/
+publish/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userprefs
+.vs/
+.vscode/
+.idea/
+
+# ---- 证书私钥（绝对禁止）----
+*.pfx
+*.p12
+*.key
+*.pem
+*.jks
+*.keystore
+
+# 证书公钥（*.cer）是有意随包分发的，保留在版本库里：
+# 它只是公钥，不含私钥，稀疏包安装时需要导入到「受信任的人」。
+
+# ---- 构建输出目录 ----
+# 里面有 127 MB 的 Flux.exe 和 43 MB 的安装包，既超 GitHub 单文件 100 MB 限制，
+# 也不属于源码。发布物请走 Release 附件，不要提交到仓库。
+dist/
+_pub/
+_scan*/
+
+# ---- 本机环境专用 / 临时诊断脚本 ----
+# 这些脚本硬编码了本机的绝对路径与提权方式，换机器就跑不了，对他人无价值。
+_runas.py
+_shot.py
+_msvc.sh
+_deploy_shellext.py
+_cleanup_legacy_menu.ps1
+_*.log
+_*.out
+_*.bmp
+
+# ---- 运行时产物 ----
+*.trace.log
+SmartUnzip.ShellExt.log
+SmartUnzip.ShellRegister.log
+Thumbs.db
+desktop.ini
+.DS_Store

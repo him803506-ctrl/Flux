@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Flux 稀疏包（Sparse Package）清单
+
+  作用：给"无包标识的传统 Win32 应用"一个 Package Identity，
+        使它的 IExplorerCommand 能进入 Windows 11 **一级右键菜单**
+        （即右键直接可见，而不是折叠在"显示更多选项"里）。
+
+  本清单在真机上对照 WinRAR.ShellExtension 与 QQExtension 两个
+  "一级菜单可见"的第三方包逐项核对得到，要点：
+
+    * Identity 不写 ProcessorArchitecture（= neutral）
+    * 不写 IgnorableNamespaces，只用必要命名空间
+    * Properties 只留 DisplayName / PublisherDisplayName / Logo /
+      uap10:AllowExternalContent（二进制装在包外）
+    * Application 用 uap10:RuntimeBehavior="win32App" 且**不声明 EntryPoint**
+      （与 EntryPoint 互斥，同时写会被 makeappx 拒绝：0x80080204）
+    * com:SurrogateServer 声明 COM 服务器（由 dllhost.exe 加载本 DLL）
+    * desktop4:FileExplorerContextMenus 声明现代右键菜单项
+
+  ⚠ 三条硬性约束（踩过坑，勿改）：
+    1. com:Class/@Id 与 desktop5:Verb/@Clsid 必须一致，且等于 C# 里
+       ShellExtConfig.ClsidString。
+    2. **绝不要在 HKLM\SOFTWARE\Classes\CLSID\{<Clsid>} 下写 InProcServer32**
+       注册项。有它时 shell 会走经典进程内加载路径而忽略 PackagedCom，
+       表现就是一级菜单里始终看不到本命令。
+    3. ProcessorArchitecture 保持 neutral，与包内 DLL 位宽无关（由
+       ExternalLocation 解析真实文件）。
+-->
+<Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+    xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+    xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+    xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+    xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10">
+
+  <Identity
+      Name="Flux.ShellMenu"
+      Publisher="CN=Flux"
+      Version="1.1.0.0" />
+
+  <Properties>
+    <DisplayName>Flux</DisplayName>
+    <PublisherDisplayName>Flux</PublisherDisplayName>
+    <Logo>StoreLogo.png</Logo>
+    <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.18950.0" MaxVersionTested="10.0.19000.0" />
+  </Dependencies>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="unvirtualizedResources" />
+  </Capabilities>
+
+  <Applications>
+    <Application Id="Flux.ShellExtension"
+                 Executable="Flux.exe"
+                 uap10:TrustLevel="mediumIL"
+                 uap10:RuntimeBehavior="win32App">
+      <uap:VisualElements
+          DisplayName="Flux"
+          Description="Flux"
+          BackgroundColor="transparent"
+          Square150x150Logo="Square150x150Logo.png"
+          Square44x44Logo="Square44x44Logo.png"
+          AppListEntry="none" />
+      <Extensions>
+        <!-- Windows 11 一级（紧凑）右键菜单：文件 -->
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop5:ItemType Type="*">
+              <desktop5:Verb Id="FluxExtract"
+                             Clsid="f10a5e70-3c42-4b18-9d6e-7a25b8c4e013" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type="Directory">
+              <desktop5:Verb Id="FluxExtract"
+                             Clsid="f10a5e70-3c42-4b18-9d6e-7a25b8c4e013" />
+            </desktop5:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+
+        <!-- COM 服务器：由 dllhost.exe 以 SurrogateServer 方式加载包外的 DLL -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer DisplayName="Flux">
+              <com:Class Id="f10a5e70-3c42-4b18-9d6e-7a25b8c4e013"
+                         Path="Flux.ShellExt.dll"
+                         ThreadingModel="STA" />
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>
+

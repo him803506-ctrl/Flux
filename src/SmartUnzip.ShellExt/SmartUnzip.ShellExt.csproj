@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Flux 的 Windows 11 右键菜单 Shell 扩展。
+
+    为什么必须单独做一个 DLL：
+      Windows 11 的**一级右键菜单**只接受实现了 IExplorerCommand 的 COM 组件。
+      传统注册表菜单（HKCR\*\shell\...\command）在 Win11 上会被折叠进"显示更多选项"。
+      要把菜单项做进一级菜单，唯一途径是：
+        1) 一个实现 IExplorerCommand 的 COM 服务器（本工程，输出 DLL）
+        2) 一个稀疏包（Sparse Package）清单，把它注册成 COM 组件
+        3) 安装该稀疏包
+
+    为什么用 NativeAOT 而不是普通托管 DLL：
+      普通 .NET DLL 需要注册表里写 mscoree.dll 的 shim，而稀疏包清单只能声明
+      "本包内的 COM 服务器"。且 IExplorerCommand 是纯 Win32 COM 接口，
+      托管 COM 互操作在这种"被 Explorer 宿主加载"的场景里非常脆弱。
+      NativeAOT 编出的是**纯原生 DLL，无运行时依赖**，用 DllGetClassObject
+      直接导出，最稳。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Flux.ShellExt</AssemblyName>
+    <RootNamespace>SmartUnzip.ShellExt</RootNamespace>
+
+    <!-- NativeAOT：产出无依赖的原生 DLL -->
+    <PublishAot>true</PublishAot>
+    <NativeLib>Shared</NativeLib>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+    <!-- 不要生成 COM 宿主包装（我们自己导出 DllGetClassObject） -->
+    <EnableComHosting>false</EnableComHosting>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <BuiltInComInteropSupport Condition="'$(PublishAot)' == 'true'">true</BuiltInComInteropSupport>
+
+    <!-- AOT 下禁用反射式 COM，改为手写 vtable -->
+    <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
+    <Optimize>true</Optimize>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+  </PropertyGroup>
+
+</Project>

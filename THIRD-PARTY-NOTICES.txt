@@ -1,0 +1,153 @@
+SmartUnzip — THIRD-PARTY NOTICES
+================================
+
+本文档列出 SmartUnzip 使用、依赖或以其他方式引用的第三方组件，
+以及它们各自的来源、版本与许可证要求。
+
+SmartUnzip 本身的自研代码以 MIT 许可证发布（见 LICENSE.txt）。
+
+
+------------------------------------------------------------------
+1. 7-Zip（核心解压引擎）  ★ 重要
+------------------------------------------------------------------
+
+用途：
+    SmartUnzip 使用 7-Zip 作为核心解压引擎。程序通过**进程调用**方式
+    执行 7z.exe 完成实际解压工作（不引用 7z.dll，不修改 7-Zip 源码）。
+
+来源（官方）：
+    https://www.7-zip.org/
+    https://github.com/ip7z/7zip
+
+开发与测试所用版本：
+    7-Zip 26.03 (x64)
+    Copyright (c) 1999-2026 Igor Pavlov
+    发布日期：2026-09-03
+
+分发方式：
+    SmartUnzip **不随附** 7-Zip 二进制文件。
+    程序在运行时自动探测用户电脑上已安装的 7-Zip：
+      - 环境变量 SMARTUNZIP_7Z
+      - 程序目录下的 7z.exe / 7za.exe / 7zz.exe
+      - %ProgramFiles%\7-Zip\
+      - %ProgramFiles(x86)%\7-Zip\
+      - %LOCALAPPDATA%\Programs\7-Zip\
+      - C:\7-Zip\
+      - 系统 PATH
+      - 注册表 HKLM/HKCU\SOFTWARE\7-Zip 的 Path 值
+    用户需自行从 7-zip.org 下载并安装。
+
+许可证：
+    7-Zip 主体采用 GNU LGPL 2.1 或更高版本（LGPL-2.1-or-later），
+    部分代码为 BSD 3-Clause。
+    License 全文：https://www.7-zip.org/license.txt
+
+    ★ 特别说明 —— unRAR 限制：
+      7-Zip 包含基于 RARLAB 提供的 unRAR 源码的部分。
+      RARLAB 的 unRAR 许可证规定：
+        - 不得使用 unRAR 源码开发 RAR 压缩器
+        - 分发时必须保留原许可证声明，不得移除或修改
+
+    SmartUnzip 的合规做法：
+      - SmartUnzip **只解压、不压缩 RAR**，不触碰上述限制条款
+      - 不随附、不修改、不重新打包 7-Zip 的任何二进制文件
+      - 仅以独立进程方式调用用户自行安装的 7z.exe
+
+    如需随附 7-Zip 二进制进行分发，请务必：
+      - 原样保留 7-Zip 安装目录中的 License.txt
+      - 不做任何修改或重新包装
+      - 在本文件中补充具体随附版本与来源
+
+
+------------------------------------------------------------------
+2. .NET 运行时（随自包含 EXE 分发）
+------------------------------------------------------------------
+
+用途：
+    SmartUnzip.exe 以 .NET 10（net10.0-windows）构建。
+    分发的版本为 **self-contained（自包含）** 发布，
+    即 .NET 运行时已内嵌于单一 EXE 中，用户无需单独安装 .NET。
+
+来源：
+    https://dotnet.microsoft.com/
+
+版权与许可：
+    Copyright (c) .NET Foundation and Contributors
+    MIT License
+    https://github.com/dotnet/runtime/blob/main/LICENSE.TXT
+
+SDK 版本（构建用）：
+    .NET SDK 10.0.401
+
+
+------------------------------------------------------------------
+3. Windows Presentation Foundation (WPF)
+------------------------------------------------------------------
+
+用途：
+    桌面用户界面框架，随 .NET 运行时一同分发。
+
+来源：
+    https://github.com/dotnet/wpf
+
+版权与许可：
+    Copyright (c) .NET Foundation and Contributors
+    MIT License
+
+
+------------------------------------------------------------------
+4. Windows DPAPI（系统 API）
+------------------------------------------------------------------
+
+用途：
+    密码库加密存储，通过 System.Security.Cryptography.ProtectedData
+    调用 Windows 数据保护 API。
+
+来源：
+    Windows 操作系统内置组件，非第三方分发内容。
+    （NuGet 包 System.Security.Cryptography.ProtectedData 为 MIT 许可）
+
+说明：
+    加密密钥由 Windows 按当前用户账户管理，SmartUnzip 不接触密钥本身。
+
+
+------------------------------------------------------------------
+5. Windows Registry API
+------------------------------------------------------------------
+
+用途：
+    右键菜单集成与开机启动项管理，通过 Microsoft.Win32.Registry
+    访问 HKCU（当前用户），不需要管理员权限。
+
+来源：
+    .NET 运行时内置，MIT 许可。
+
+
+==================================================================
+不做的事（合规声明）
+==================================================================
+
+SmartUnzip 明确：
+
+  - 不包含、不引用任何 GPL / AGPL 项目的代码
+  - 不复制 PeaZip、SevenZipSharp、SevenZipExtractor 等项目的源代码
+    （仅在架构设计上参考其公开 API 设计思路）
+  - 不随附 WinRAR 或任何商业软件
+  - 不包含暴力破解、字典攻击或任何绕过加密的功能
+
+
+==================================================================
+调研结论摘要（2026-10-04）
+==================================================================
+
+在开发前对 GitHub 开源项目做了系统调研（见 docs/01-GitHub开源项目调研报告.md），
+最终结论：**不存在可直接 Fork 作为 SmartUnzip 基础的成熟项目**，
+因为所有现有解压工具都按扩展名或用户选择解压，没有实现
+「先探测真实格式 → 识别扩展名伪装 → 自动匹配密码 → 再解压」的链路。
+
+因此采用组合方案：
+  - 解压引擎：7-Zip（进程调用）
+  - 其余全部自研：FileTypeDetector / PasswordVault / PasswordMatcher /
+    SecurityValidator / ExtractionTaskManager / WPF UI
+
+此方案在许可证上最干净：不引入任何 LGPL/GPL 传染性代码到自研部分。
