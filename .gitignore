@@ -53,3 +53,7 @@ SmartUnzip.ShellRegister.log
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Python 字节码
+__pycache__/
+*.pyc
