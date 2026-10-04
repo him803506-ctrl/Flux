@@ -1,12 +1,13 @@
 """生成稀疏包所需的 Assets 图片（StoreLogo / Square150 / Square44）。
 
-用软件图标 SmartUnzip.png 缩放出各尺寸，避免包清单校验时报缺图。
+用软件图标 Flux.png 缩放出各尺寸，避免包清单校验时报缺图。
 """
 import os
 from PIL import Image
 
-BASE = r"C:\Users\HKN\WorkBuddy\2026-10-04-12-27-25\SmartUnzip"
-SRC = os.path.join(BASE, "src", "SmartUnzip", "Assets", "SmartUnzip.png")
+# 仓库根目录 = 本脚本所在目录
+BASE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(BASE, "src", "SmartUnzip", "Assets", "Flux.png")
 OUT = os.path.join(BASE, "src", "SmartUnzip.ShellExt", "Package", "Assets")
 
 SIZES = {

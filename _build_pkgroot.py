@@ -1,4 +1,4 @@
-"""构建 SmartUnzip 稀疏包的**内容目录**（严格对照 WinRAR 的做法）。
+"""构建 Flux 稀疏包的**内容目录**（严格对照 WinRAR 的做法）。
 
 WinRAR 的包目录只有：
     AppxManifest.xml
@@ -9,12 +9,13 @@ WinRAR 的包目录只有：
 **没有 DLL，没有 EXE** —— 二进制通过 uap10:AllowExternalContent
 指向 <安装目录>，由 Add-AppxPackage -ExternalLocation 建立映射。
 
-因此我们也只放清单 + 图标。包外的真实文件在 dist/SmartUnzip/ 下。
+因此我们也只放清单 + 图标。包外的真实文件在 dist/Flux/ 下。
 """
 import os
 import shutil
 
-BASE = r"C:\Users\HKN\WorkBuddy\2026-10-04-12-27-25\SmartUnzip"
+# 仓库根目录 = 本脚本所在目录（clone 到任意路径都能直接跑）
+BASE = os.path.dirname(os.path.abspath(__file__))
 PKG_SRC = os.path.join(BASE, "src", "SmartUnzip.ShellExt", "Package")
 OUT = os.path.join(BASE, "dist", "_pkgroot")   # 稀疏包内容目录
 

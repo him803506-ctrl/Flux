@@ -83,15 +83,16 @@ Windows 11 的紧凑右键菜单**只接受有包标识（Package Identity）的
 - 7-Zip 21.07+（运行必需，编译不需要）
 - Inno Setup 6（仅打安装包时需要）
 - Visual Studio 2022 Build Tools + Windows SDK（**仅编译 NativeAOT 扩展时需要**）
+- **Git Bash**（构建脚本是 `.sh`；主程序用 `dotnet` 命令编译则不需要）
 
 ### 编译
 
 ```bash
-# 主程序
+# 主程序（任意 shell，PowerShell / cmd / bash 均可）
 dotnet publish src/SmartUnzip -c Release -r win-x64 --self-contained true \
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o _pub
 
-# 右键菜单扩展（NativeAOT，需要 MSVC 工具链）
+# 右键菜单扩展（NativeAOT，需要 MSVC 工具链；在 Git Bash 里执行）
 export FLUX_CERT_PASSWORD='你的证书密码'
 bash _make_cert.sh
 bash _publish_shellext.sh
@@ -100,6 +101,10 @@ bash _pack_shellext.sh
 # 安装包
 cd installer && "<Inno Setup 目录>\ISCC.exe" Flux.iss
 ```
+
+> `_publish_shellext.sh` 会自行探测 MSVC 与 Windows SDK 的安装路径，
+> 里面的 `INCLUDE` / `LIB` **必须用 Windows 风格路径**（`C:\...`），
+> 否则 NativeAOT 链接阶段找不到库，会**静默回退**成一个十几 KB 的托管 DLL。
 
 跑测试：
 

@@ -7,7 +7,8 @@
 
 set -e
 
-ROOT="C:/Users/HKN/WorkBuddy/2026-10-04-12-27-25/SmartUnzip"
+# 仓库根目录 = 本脚本所在目录
+ROOT="$(cd "$(dirname "$0")" && pwd)"
 SDK_BIN="/c/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64"
 PKGROOT="$ROOT/dist/_pkgroot"
 OUT="$ROOT/dist/_pkg"
